@@ -51,13 +51,13 @@
             return o[k](...globalThis.inkwasm.Internal.parseArgs(args))
         },
         New: function (o, args) {
-            if (args.length === 0) {
+            if (args === null || args.length === 0) {
                 return new o()
             }
             return new o(...globalThis.inkwasm.Internal.parseArgs(args))
         },
         Make: function (args) {
-            if (args.length === 0) {
+            if (args === null || args.length === 0) {
                 return {}
             }
             return new Object(args)
