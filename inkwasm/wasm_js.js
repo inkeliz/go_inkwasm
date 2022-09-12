@@ -244,11 +244,15 @@
             globalThis.inkwasm.Set.Int(go, sp, offset, v, true)
         },
         Byte: function (go, sp, offset, v) {
-            globalThis.inkwasm.Set.Uint8(go, sp, offset, v, true)
+            globalThis.inkwasm.Set.Uint8(go, sp, offset, v)
         },
 
         Bool: function (go, sp, offset, v) {
-            globalThis.inkwasm.Set.Uint8(go, sp, offset, v === true, true)
+            if (v) {
+                globalThis.inkwasm.Set.Uint8(go, sp, offset, 255)
+            } else {
+                globalThis.inkwasm.Set.Uint8(go, sp, offset, 0)
+            }
         },
 
         Int: function (go, sp, offset, v) {
@@ -384,11 +388,11 @@
                     }
                     break;
                 case "boolean":
-                    globalThis.inkwasm.Set.Bool(go, sp, offset + 8, v);
+                    globalThis.inkwasm.Set.Bool(go, sp, offset, v);
                     globalThis.inkwasm.Set.Uint8(go, sp, offset + 8, ObjectTypes.TypeBoolean);
                     break;
                 case "number":
-                    globalThis.inkwasm.Set.Float64(go, sp, offset + 8, v);
+                    globalThis.inkwasm.Set.Float64(go, sp, offset, v);
                     globalThis.inkwasm.Set.Uint8(go, sp, offset + 8, ObjectTypes.TypeNumber);
                     break;
                 case "bigint":
