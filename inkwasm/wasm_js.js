@@ -17,15 +17,29 @@
         TypeObject: 8,
     }
 
-    globalThis.inkwasm = {Load: {}, Set: {}, Internal: {}, Exports: {}}
+    if (globalThis.inkwasm === undefined) {
+        globalThis.inkwasm = {};
+    }
+    if (globalThis.inkwasm.Load === undefined) {
+        globalThis.inkwasm.Load = {};
+    }
+    if (globalThis.inkwasm.Set === undefined) {
+        globalThis.inkwasm.Set = {};
+    }
+    if (globalThis.inkwasm.Internal === undefined) {
+        globalThis.inkwasm.Internal = {};
+    }
+    if (globalThis.inkwasm.Exports === undefined) {
+        globalThis.inkwasm.Exports = {};
+    }
 
-    globalThis.inkwasm.Exports = {
+    Object.assign(globalThis.inkwasm.Exports, {
         MakeSlice: undefined,
         MakeSliceLenArgPtr: undefined,
         MakeSliceResult: undefined,
-    }
+    })
 
-    globalThis.inkwasm.Internal = {
+    Object.assign(globalThis.inkwasm.Internal, {
         parseArgs: function (args) {
             let a = new Array(args.length >> 2);
             for (let i = 0; i < args.length; i += 4) {
@@ -63,7 +77,42 @@
             return new Object(args)
         },
         Copy: function (o, slice) {
-            slice.set(o)
+            if (o instanceof ArrayBuffer) {
+                switch (true) {
+                    case slice instanceof Int8Array:
+                        slice.set(new Int8Array(o).slice(0))
+                        break;
+                    case slice instanceof Uint8Array:
+                        slice.set(new Uint8Array(o).slice(0))
+                        break;
+                    case slice instanceof Int16Array:
+                        slice.set(new Int16Array(o).slice(0))
+                        break;
+                    case slice instanceof Uint16Array:
+                        slice.set(new Uint16Array(o).slice(0))
+                        break;
+                    case slice instanceof Int32Array:
+                        slice.set(new Int32Array(o).slice(0))
+                        break;
+                    case slice instanceof Uint32Array:
+                        slice.set(new Uint32Array(o).slice(0))
+                        break;
+                    case slice instanceof Float32Array:
+                        slice.set(new Float32Array(o).slice(0))
+                        break;
+                    case slice instanceof Float64Array:
+                        slice.set(new Float64Array(o).slice(0))
+                        break;
+                    case slice instanceof BigInt64Array:
+                        slice.set(new BigInt64Array(o).slice(0))
+                        break;
+                    case slice instanceof BigUint64Array:
+                        slice.set(new BigUint64Array(o).slice(0))
+                        break;
+                }
+            } else {
+                slice.set(o)
+            }
         },
         EncodeString: function (o) {
             return StringEncoder.encode(o);
@@ -77,9 +126,9 @@
         StrictEqual: function (o, v) {
             return o === v
         }
-    }
+    })
 
-    globalThis.inkwasm.Load = {
+    Object.assign(globalThis.inkwasm.Load, {
         Float32: function (go, sp, offset) {
             return go.mem.getFloat32(sp + offset, true)
         },
@@ -230,9 +279,9 @@
                     return Objects[globalThis.inkwasm.Load.Int(go, sp, offset)]
             }
         }
-    }
+    })
 
-    globalThis.inkwasm.Set = {
+    Object.assign(globalThis.inkwasm.Set, {
         Float32: function (go, sp, offset, v) {
             go.mem.setFloat32(sp + offset, v, true)
         },
@@ -414,6 +463,6 @@
                     break;
             }
         }
-    }
+    })
 
 })();
