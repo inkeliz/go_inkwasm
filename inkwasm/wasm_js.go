@@ -19,12 +19,11 @@ type Object struct {
 }
 
 // NewObject creates a new Javascript Object.
-func NewObject(args ...interface{}) Object {
-	v, err := createArgs(args)
-	if err != nil {
-		return makeObj(nil)
-	}
-	return makeObj(v)
+//
+// The resulting Object must be released using Free, when
+// no longer in use.
+func NewObject() Object {
+	return makeObj(nil)
 }
 
 //inkwasm:func globalThis.inkwasm.Internal.Make
@@ -169,7 +168,7 @@ var (
 func (o Object) Bool() (bool, error) {
 	switch o.typ {
 	case TypeBoolean:
-		return *(*bool)(unsafe.Pointer(&o.value)), nil
+		return o.value[0] != 0, nil
 	case TypeNumber:
 		v, _ := o.Float()
 		return v != 0, nil
