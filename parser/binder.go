@@ -306,6 +306,12 @@ func (b *Binder) createExportJavascript(pkg bind.Package, info []*bind.Function)
 	b.js.Line()
 	b.js.WriteOpen(`(() => {`)
 	b.js.Line()
+	b.js.WriteOpen(`if (globalThis.inkwasm === undefined) {`)
+	b.js.Line()
+	b.js.Write(`globalThis.inkwasm = {Load: {}};`)
+	b.js.Line()
+	b.js.WriteClose(`}`)
+	b.js.Line()
 
 	for _, info := range info {
 		decoderName := fmt.Sprintf(`globalThis.inkwasm.Load.%s`, info.FunctionGolang.Name)
