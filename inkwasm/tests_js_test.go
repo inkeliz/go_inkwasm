@@ -131,6 +131,19 @@ func TestObjectType_String(t *testing.T) {
 	}
 }
 
+//inkwasm:func nonExistentFunction
+func gen_nonExistentFunction(s string) (Object, bool)
+
+func TestNonExistentFunction(t *testing.T) {
+	v, ok := gen_nonExistentFunction("Hello, 世界")
+	if ok {
+		t.Error("non existent function should return false")
+	}
+	if v.Truthy() {
+		t.Error("non existent function should return undefined")
+	}
+}
+
 //inkwasm:func globalThis.TestObjectType_String
 func gen_TestObjectType_String(s string) bool
 
