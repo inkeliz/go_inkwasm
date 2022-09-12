@@ -25,12 +25,13 @@ func testInvoke(t *testing.T, obj Object, args ...interface{}) {
 		t.Error(err)
 	}
 	if r != true {
-		t.Fail()
+		t.Error("not true")
 	}
 }
 
 //inkwasm:export
 type TestExportStruct struct {
+	_  uint64
 	ID int32 `js:"id"`
 	X  int8  `js:"x"`
 }
@@ -42,6 +43,23 @@ func TestExport(t *testing.T) {
 	x := TestExportStruct{ID: rand.Int31()}
 	if xx := gen_TestExported(x, int32(x.ID)); xx != x.ID {
 		t.Errorf("exported struct fail, expect %v receives %v", x.ID, xx)
+	}
+}
+
+//inkwasm:export
+type TestExportStruct2 struct {
+	_         uint64
+	SomeField uint8            `js:"someField"`
+	Inside    TestExportStruct `js:"nested"`
+}
+
+//inkwasm:func globalThis.TestExportedNested
+func gen_TestExportedNested(TestExportStruct2, int32) int32
+
+func TestExportNested(t *testing.T) {
+	x := TestExportStruct2{Inside: TestExportStruct{ID: rand.Int31()}}
+	if xx := gen_TestExportedNested(x, int32(x.Inside.ID)); xx != x.Inside.ID {
+		t.Errorf("exported struct fail, expect %v receives %v", x.Inside.ID, xx)
 	}
 }
 
@@ -177,6 +195,74 @@ func TestObject_Bytes(t *testing.T) {
 		}
 	}
 
+}
+
+//inkwasm:func globalThis.TestFloat_Echo
+func gen_TestFloat_Echo(o float64) float64
+
+//inkwasm:get globalThis.TestFloat_Echo
+func runtime_TestFloat_Echo() Object
+
+func TestFloat_Echo(t *testing.T) {
+	if gen_TestFloat_Echo(52.0) != 52.0 {
+		t.Error("float error, generator")
+	}
+	obj, err := runtime_TestFloat_Echo().Invoke(float64(52))
+	if err != nil {
+		t.Error(err)
+	}
+	defer obj.Free()
+
+	v, err := obj.Float()
+	if err != nil {
+		t.Error(err)
+	}
+	if v != 52 {
+		t.Error("uint error, runtime")
+	}
+}
+
+//inkwasm:func globalThis.TestUint_Echo
+func gen_TestUint_Echo(o uint64) uint64
+
+//inkwasm:get globalThis.TestUint_Echo
+func runtime_TestUint_Echo() Object
+
+func TestUint_Echo(t *testing.T) {
+	if gen_TestUint_Echo(18446744073709551615) != 18446744073709551615 {
+		t.Error("uint error, generator")
+	}
+	obj, err := runtime_TestUint_Echo().Invoke(int(52))
+	if err != nil {
+		t.Error(err)
+	}
+	defer obj.Free()
+
+	v, err := obj.Int()
+	if err != nil {
+		t.Error(err)
+	}
+	if v != 52 {
+		t.Error("uint error, runtime")
+	}
+}
+
+//inkwasm:func globalThis.TestUint64_Static
+func gen_TestUint64_Static() uint64
+
+func TestUint64_Static(t *testing.T) {
+	if gen_TestUint64_Static() != 18446744073709551615 {
+		t.Error("uint error, generator")
+	}
+}
+
+//inkwasm:func globalThis.TestInt64_Static
+func gen_TestInt64_Static() uint64
+
+func TestInt64_Static(t *testing.T) {
+	if gen_TestInt64_Static() != 9223372036854775807 {
+		t.Error("uint error, generator")
+	}
 }
 
 //inkwasm:func globalThis.TestObject_Bytes

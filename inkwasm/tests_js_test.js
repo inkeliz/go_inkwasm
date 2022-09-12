@@ -5,6 +5,22 @@
         }
         return e.id
     }
+    globalThis.TestExportedNested = function (e, e2) {
+        if (e.nested.id !== e2) {
+            return 0
+        }
+        return e.nested.id
+    }
+    globalThis.TestExportedArray = function (e, e2) {
+        let sum = 0
+        for (let i = 0; i < e.nested.length; i++) {
+            sum += e.nested[i].id
+        }
+        if (sum !== e2) {
+            return 0
+        }
+        return sum
+    }
     globalThis.TestAlignment = function (b, v) {
         if (b) {
             return v
@@ -37,5 +53,23 @@
     }
     globalThis.TestObject_GetRandom = function (e) {
         crypto.getRandomValues(e)
+    }
+    globalThis.TestFloat_Echo = function (e) {
+        return e
+    }
+    globalThis.TestUint_Echo = function (e) {
+        return e
+    }
+    globalThis.TestUint64_Static = function (e) {
+        return 18446744073709551615n
+    }
+    globalThis.TestInt64_Static = function (e) {
+        return 9223372036854775807n
+    }
+    globalThis.TestFloat_Add = function (e, e2) {
+        return e + e2
+    }
+    globalThis.TestUint64_Add = function (e, e2) {
+        return e + e2
     }
 })();

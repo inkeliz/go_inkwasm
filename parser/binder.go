@@ -3,10 +3,11 @@ package parser
 import (
 	"bytes"
 	"fmt"
-	"github.com/inkeliz/go_inkwasm/bind"
 	"io"
 	"strconv"
 	"strings"
+
+	"github.com/inkeliz/go_inkwasm/bind"
 )
 
 type Mode uint64
@@ -333,8 +334,8 @@ func (b *Binder) createExportJavascript(pkg bind.Package, info []*bind.Function)
 		}
 
 		size := sp
-		if left := size % 4; left != 0 {
-			size += 4 - left
+		if left := size % 8; left != 0 {
+			size += 8 - left
 		}
 
 		bind.BridgeFunc[bind.ModeStatic][strings.ToLower(info.FunctionGolang.Name)] = bind.BridgeFuncInfo{
@@ -498,7 +499,7 @@ func padding(sp *int, l int) {
 	if l > 8 {
 		l = 8
 	}
-	if ((*sp % 8) % l) > 0 {
+	if left := (*sp % 8) % l; left > 0 {
 		*sp += l - ((*sp % 8) % l)
 	}
 }

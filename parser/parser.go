@@ -2,15 +2,16 @@ package parser
 
 import (
 	"errors"
-	"github.com/inkeliz/go_inkwasm/bind"
 	"go/ast"
 	"go/token"
-	"golang.org/x/tools/go/ast/astutil"
-	"golang.org/x/tools/go/packages"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
+
+	"github.com/inkeliz/go_inkwasm/bind"
+	"golang.org/x/tools/go/ast/astutil"
+	"golang.org/x/tools/go/packages"
 )
 
 type Parser struct {
@@ -227,6 +228,11 @@ func (p *Parser) parseStruct(pkg string, f *ast.StructType) (bind.FunctionGolang
 	if err := p.parseFields(pkg, &b.Arguments, f.Fields); err != nil {
 		return b, err
 	}
+
+	if len(b.Arguments) > 0 && (b.Arguments[0].Name != "_" || b.Arguments[0].Type != "uint64") {
+		return b, errors.New(`first argument of exported struct must be uint64 and named as "_"`)
+	}
+
 	return b, nil
 }
 

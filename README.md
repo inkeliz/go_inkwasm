@@ -142,7 +142,7 @@ Currently, **InkWasm** is very experimental and WebAssembly, in general, is also
 
 - [ ] Support TinyGo
 
-- [ ] Export struct (`inkwasm:export`)
+- [~] Export struct (`inkwasm:export`)
 - [ ] Export functions (`inkwasm:export`)
 - [ ] Export alias type (`inkwasm:export`)
 - [ ] Exported functions without `js.FuncOf`
