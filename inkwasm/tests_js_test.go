@@ -451,6 +451,48 @@ func Benchmark_DOM_INKWASM(b *testing.B) {
 	}
 }
 
+func Benchmark_InsertAdjacentHTML_INKWASM(b *testing.B) {
+	hijackInsertAdjacentHTML()
+
+	b.ReportAllocs()
+	b.ResetTimer()
+
+	pattern, _ := Global().Get("String").New("beforebegin")
+	defer pattern.Free()
+
+	for i := 0; i < b.N; i++ {
+		gen_InsertAdjacentHTML(pattern, i)
+	}
+}
+
+//inkwasm:func globalThis.document.body.insertAdjacentHTML
+func gen_InsertAdjacentHTML(Object, int)
+
+func hijackInsertAdjacentHTML() {
+	fn := js.Global().Get("Function").New()
+	js.Global().Get("HTMLElement").Get("prototype").Set("insertAdjacentHTML", fn)
+}
+
+func Benchmark_InsertAdjacentHTML_INKWASM_RUNTIME(b *testing.B) {
+	hijackInsertAdjacentHTML()
+
+	b.ReportAllocs()
+	b.ResetTimer()
+
+	pattern, _ := Global().Get("String").New("beforebegin")
+	defer pattern.Free()
+
+	body := Global().Get("document").Get("body")
+	defer body.Free()
+
+	fn, _ := Global().Get("HTMLElement").Get("prototype").Get("insertAdjacentHTML").Call("bind", body)
+	defer fn.Free()
+
+	for i := 0; i < b.N; i++ {
+		fn.Invoke(pattern, i)
+	}
+}
+
 func Benchmark_DOM_RUNTIME_INKWASM(b *testing.B) {
 	b.ReportAllocs()
 

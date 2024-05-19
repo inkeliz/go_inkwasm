@@ -1,3 +1,45 @@
+/*
+Package inkwasm provides a way to interact with Javascript from WebAssembly.
+
+The Object type represents a Javascript Object, and it can be used to call
+methods, get properties, and set properties.
+
+The Object type is not comparable, and it must be released using the Free method
+when no longer in use.
+
+The input arguments for the methods are converted to Javascript values, it must be
+compatible with the Javascript types:
+
+- Object: Object
+- string: String
+- float32: Number
+- float64: Number
+- uintptr: Number
+- bool: Boolean
+- int: Number
+- uint: Number
+- uint8: Number
+- int8: Number
+- uint16: Number
+- int16: Number
+- uint32: Number
+- int32: Number
+- uint64: BigInt
+- int64: BigInt
+- []byte: Uint8Array (ArrayBuffer)
+- []uint8: Uint8Array (ArrayBuffer)
+- []int8: Int8Array (ArrayBuffer)
+- []uint16: Uint16Array (ArrayBuffer)
+- []int16: Int16Array (ArrayBuffer)
+- []uint32: Uint32Array (ArrayBuffer)
+- []int32: Int32Array (ArrayBuffer)
+- []uint64: BigInt64Array (ArrayBuffer)
+- []int64: BigInt64Array (ArrayBuffer)
+
+Using any other type will result in an Undefined, without any error. You can use
+the VerifyArgs function to check if the arguments are valid. That is not done
+automatically to avoid performance issues.
+*/
 package inkwasm
 
 import (
@@ -59,11 +101,7 @@ func free(ref int)
 // The resulting Object must be released using Free, when
 // no longer in use.
 func (o Object) Call(method string, args ...interface{}) (Object, error) {
-	v, err := createArgs(args)
-	if err != nil {
-		return Undefined(), err
-	}
-	r, ok := call(o, method, v)
+	r, ok := call(o, method, args)
 	if !ok {
 		return Undefined(), ErrExecutionJS
 	}
@@ -71,22 +109,20 @@ func (o Object) Call(method string, args ...interface{}) (Object, error) {
 }
 
 //inkwasm:func globalThis.inkwasm.Internal.Call
+//go:noescape
 func call(o Object, k string, args []interface{}) (Object, bool)
 
 // CallVoid is similar to Call, but doesn't return the resulting Object.
 // Look at Call function for more details.
 func (o Object) CallVoid(method string, args ...interface{}) error {
-	v, err := createArgs(args)
-	if err != nil {
-		return err
-	}
-	if _, ok := callVoid(o, method, v); !ok {
+	if _, ok := callVoid(o, method, args); !ok {
 		return ErrExecutionJS
 	}
 	return nil
 }
 
 //inkwasm:func globalThis.inkwasm.Internal.Call
+//go:noescape
 func callVoid(o Object, k string, args []interface{}) (_, ok bool)
 
 // Invoke invokes the current Object, calling itself with the
@@ -96,11 +132,7 @@ func callVoid(o Object, k string, args []interface{}) (_, ok bool)
 // The resulting Object must be released using Free, when
 // no longer in use.
 func (o Object) Invoke(args ...interface{}) (Object, error) {
-	v, err := createArgs(args)
-	if err != nil {
-		return Undefined(), err
-	}
-	r, ok := invoke(o, v)
+	r, ok := invoke(o, args)
 	if !ok {
 		return Undefined(), ErrExecutionJS
 	}
@@ -108,32 +140,26 @@ func (o Object) Invoke(args ...interface{}) (Object, error) {
 }
 
 //inkwasm:func globalThis.inkwasm.Internal.Invoke
+//go:noescape
 func invoke(o Object, args []interface{}) (Object, bool)
 
 // InvokeVoid is similar to Invoke, but doesn't return the resulting Object.
 // Look at Invoke function for more details.
 func (o Object) InvokeVoid(args ...interface{}) error {
-	v, err := createArgs(args)
-	if err != nil {
-		return err
-	}
-	if _, ok := invokeVoid(o, v); !ok {
+	if _, ok := invokeVoid(o, args); !ok {
 		return ErrExecutionJS
 	}
 	return nil
 }
 
 //inkwasm:func globalThis.inkwasm.Internal.Invoke
+//go:noescape
 func invokeVoid(o Object, args []interface{}) (_, ok bool)
 
 // New uses the "new" operator from Javascript with the current object
 // as the constructor and the given arg as arguments.
 func (o Object) New(args ...interface{}) (Object, error) {
-	v, err := createArgs(args)
-	if err != nil {
-		return Undefined(), err
-	}
-	r, ok := newObj(o, v)
+	r, ok := newObj(o, args)
 	if !ok {
 		return Undefined(), ErrExecutionJS
 	}
@@ -141,6 +167,7 @@ func (o Object) New(args ...interface{}) (Object, error) {
 }
 
 //inkwasm:new .
+//go:noescape
 func newObj(o Object, args []interface{}) (Object, bool)
 
 // GetIndex returns given index of the current Object.

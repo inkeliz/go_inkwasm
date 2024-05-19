@@ -4,12 +4,8 @@ import (
 	"fmt"
 )
 
-// createArgs is now a no-op
-// The JS will be responsible to identify the type of the arguments,
-// using Go internal structures.
-//
-// That is used to avoid wrong types of arguments.
-func createArgs(args []interface{}) ([]interface{}, error) {
+// VerifyArgs checks if the arguments are supported.
+func VerifyArgs(args []interface{}) error {
 	for _, a := range args {
 		switch a.(type) {
 		case Object:
@@ -37,8 +33,8 @@ func createArgs(args []interface{}) ([]interface{}, error) {
 		case []uint64:
 		case []int64:
 		default:
-			return nil, fmt.Errorf("unsupported argument type of %T", a)
+			return fmt.Errorf("unsupported argument type of %T", a)
 		}
 	}
-	return args, nil
+	return nil
 }
