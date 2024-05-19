@@ -2,7 +2,6 @@ package inkwasm
 
 import (
 	"errors"
-	"syscall/js"
 	"unsafe"
 )
 
@@ -16,6 +15,15 @@ type Object struct {
 	protected bool       // protected prevents been released
 	_         [2]uint8   // padding, reserved
 	len       uint32     // len for array/string
+}
+
+func init() {
+	if unsafe.Sizeof(Object{}) > unsafe.Sizeof(string("")) {
+		panic("Impossible to use Object")
+	}
+	if unsafe.Sizeof(Object{}) > unsafe.Sizeof([]byte{}) {
+		panic("Impossible to use Object")
+	}
 }
 
 // NewObject creates a new Javascript Object.
@@ -35,8 +43,10 @@ func (o Object) Free() {
 		return
 	}
 	switch o.typ {
-	case TypeFunction, TypeSymbol, TypeBigInt, TypeObject:
+	case TypeFunction, TypeSymbol, TypeBigInt, TypeObject, TypeString:
 		free(*(*int)(unsafe.Pointer(&o.value)))
+	case TypeUndefined, TypeNull, TypeBoolean, TypeNumber:
+		// no-op (the value is not a reference)
 	}
 }
 
@@ -146,6 +156,11 @@ func (o Object) GetProperty(property string) Object {
 	return getProp(o, property)
 }
 
+// Get returns property of the current Object.
+func (o Object) Get(property string) Object {
+	return getProp(o, property)
+}
+
 //inkwasm:get .
 func getProp(o Object, k string) Object
 
@@ -155,8 +170,17 @@ func (o Object) SetProperty(property string, value string) {
 	setProp(o, property, value)
 }
 
+// Set defines the given property of the current Object with
+// the given value.
+func (o Object) Set(property string, value Object) {
+	setPropObj(o, property, value)
+}
+
 //inkwasm:func Reflect.set
 func setProp(o Object, k, v string)
+
+//inkwasm:func Reflect.set
+func setPropObj(o Object, k string, v Object)
 
 var (
 	ErrInvalidType = errors.New("invalid type")
@@ -261,9 +285,21 @@ func (o Object) Length() uint32 {
 	return o.len
 }
 
+// Len is a alias for Length.
+// See Length for more details.
+func (o Object) Len() uint32 {
+	return o.len
+}
+
 func (o Object) InstanceOf(v Object) bool {
-	js.Value{}.Truthy()
-	return instanceOf(o, v)
+	switch v.typ {
+	case TypeUndefined:
+		return o.typ == TypeUndefined
+	case TypeNull:
+		return o.typ == TypeNull
+	default:
+		return instanceOf(o, v)
+	}
 }
 
 //inkwasm:func globalThis.inkwasm.Internal.InstanceOf
@@ -280,13 +316,12 @@ func (o Object) Truthy() bool {
 		return false
 	case TypeBoolean:
 		v, _ := o.Bool()
-		return v
+		return v != false
 	case TypeNumber:
 		v, _ := o.Float()
 		return v != 0
 	case TypeString:
-		v, _ := o.String()
-		return len(v) > 0
+		return o.len > 0
 	default:
 		return true
 	}
