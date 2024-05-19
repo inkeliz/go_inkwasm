@@ -335,6 +335,10 @@ func parseArray(arg *bind.Argument, t *ast.ArrayType) error {
 		return parseIdent(arg.SubType, tt)
 	case *ast.SelectorExpr:
 		return parseSelector(arg.SubType, tt)
+	case *ast.InterfaceType:
+		arg.SubType.ArgType = bind.ModeStatic
+		arg.SubType.Type = "interface{}"
+		return nil
 	default:
 		return errors.New("array/slice of pointers isn't supported")
 	}

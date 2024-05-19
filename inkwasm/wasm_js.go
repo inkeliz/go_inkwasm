@@ -71,7 +71,7 @@ func (o Object) Call(method string, args ...interface{}) (Object, error) {
 }
 
 //inkwasm:func globalThis.inkwasm.Internal.Call
-func call(o Object, k string, args []int32) (Object, bool)
+func call(o Object, k string, args []interface{}) (Object, bool)
 
 // CallVoid is similar to Call, but doesn't return the resulting Object.
 // Look at Call function for more details.
@@ -87,7 +87,7 @@ func (o Object) CallVoid(method string, args ...interface{}) error {
 }
 
 //inkwasm:func globalThis.inkwasm.Internal.Call
-func callVoid(o Object, k string, args []int32) (_, ok bool)
+func callVoid(o Object, k string, args []interface{}) (_, ok bool)
 
 // Invoke invokes the current Object, calling itself with the
 // provided args as arguments of the function.
@@ -108,7 +108,7 @@ func (o Object) Invoke(args ...interface{}) (Object, error) {
 }
 
 //inkwasm:func globalThis.inkwasm.Internal.Invoke
-func invoke(o Object, args []int32) (Object, bool)
+func invoke(o Object, args []interface{}) (Object, bool)
 
 // InvokeVoid is similar to Invoke, but doesn't return the resulting Object.
 // Look at Invoke function for more details.
@@ -124,7 +124,7 @@ func (o Object) InvokeVoid(args ...interface{}) error {
 }
 
 //inkwasm:func globalThis.inkwasm.Internal.Invoke
-func invokeVoid(o Object, args []int32) (_, ok bool)
+func invokeVoid(o Object, args []interface{}) (_, ok bool)
 
 // New uses the "new" operator from Javascript with the current object
 // as the constructor and the given arg as arguments.
@@ -141,7 +141,7 @@ func (o Object) New(args ...interface{}) (Object, error) {
 }
 
 //inkwasm:new .
-func newObj(o Object, args []int32) (Object, bool)
+func newObj(o Object, args []interface{}) (Object, bool)
 
 // GetIndex returns given index of the current Object.
 func (o Object) GetIndex(index int) Object {

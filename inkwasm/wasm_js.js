@@ -40,20 +40,11 @@
     })
 
     Object.assign(globalThis.inkwasm.Internal, {
-        parseArgs: function (args) {
-            let a = new Array(args.length >> 2);
-            for (let i = 0; i < args.length; i += 4) {
-                const k = args[i] + (args[i + 1] * 4294967296);
-                const v = args[i + 2] + (args[i + 3] * 4294967296);
-                a[i >> 2] = Objects[k](go, v, 0);
-            }
-            return a;
-        },
         Invoke: function (o, args) {
             if (args === null || args.length === 0) {
                 return o()
             }
-            return o(...globalThis.inkwasm.Internal.parseArgs(args))
+            return o(...args)
         },
         Free: function (id) {
             ObjectsUnused.push(id)
@@ -62,13 +53,13 @@
             if (args === null || args.length === 0) {
                 return o[k]()
             }
-            return o[k](...globalThis.inkwasm.Internal.parseArgs(args))
+            return o[k](...args)
         },
         New: function (o, args) {
             if (args === null || args.length === 0) {
                 return new o()
             }
-            return new o(...globalThis.inkwasm.Internal.parseArgs(args))
+            return new o(...args)
         },
         Make: function (args) {
             if (args === null || args.length === 0) {
@@ -228,6 +219,144 @@
             return globalThis.inkwasm.Load.ArrayUint32(go, sp, offset, len)
         },
 
+        ArrayInterface: function (go, sp, offset, len) {
+            let result = []
+            for (let i = 0; i < len; i++) {
+                result.push(globalThis.inkwasm.Load.Interface(go, sp, offset + (i * 16)))
+            }
+            return result
+        },
+        Interface: function (go, sp, offset) {
+            let ptr_rtype = globalThis.inkwasm.Load.UintPtr(go, sp, offset)
+            let ptr_data = globalThis.inkwasm.Load.Int(go, sp, offset + 8)
+
+            let kind = globalThis.inkwasm.Load.Byte(go, ptr_rtype, 8 + 8 + 4 + 1 + 1 + 1)
+            switch (kind) {
+                case 0: // Invalid
+                    return undefined
+                case 1: // Bool
+                    return globalThis.inkwasm.Load.Bool(go, ptr_data, 0)
+                case 2: // Int
+                    return globalThis.inkwasm.Load.Int(go, ptr_data, 0)
+                case 3: // Int8
+                    return globalThis.inkwasm.Load.Int8(go, ptr_data, 0)
+                case 4: // Int16
+                    return globalThis.inkwasm.Load.Int16(go, ptr_data, 0)
+                case 5: // Int32
+                    return globalThis.inkwasm.Load.Int32(go, ptr_data, 0)
+                case 6: // Int64
+                    return globalThis.inkwasm.Load.Int64(go, ptr_data, 0)
+                case 7: // Uint
+                    return globalThis.inkwasm.Load.Uint(go, ptr_data, 0)
+                case 8: // Uint8
+                    return globalThis.inkwasm.Load.Uint8(go, ptr_data, 0)
+                case 9: // Uint16
+                    return globalThis.inkwasm.Load.Uint16(go, ptr_data, 0)
+                case 10: // Uint32
+                    return globalThis.inkwasm.Load.Uint32(go, ptr_data, 0)
+                case 11: // Uint64
+                    return globalThis.inkwasm.Load.Uint64(go, ptr_data, 0)
+                case 12: // Uintptr
+                    return globalThis.inkwasm.Load.UintPtr(go, ptr_data, 0)
+                case 13: // Float32
+                    return globalThis.inkwasm.Load.Float32(go, ptr_data, 0)
+                case 14: // Float64
+                    return globalThis.inkwasm.Load.Float64(go, ptr_data, 0)
+                case 15: // Complex64
+                    return undefined
+                case 16: // Complex128
+                    return undefined
+                case 17: // Array
+                    return undefined
+                case 18: // Chan
+                    return undefined
+                case 19: // Func
+                    return undefined
+                case 20: // Interface
+                    return undefined
+                case 21: // Map
+                    return undefined
+                case 22: // Pointer
+                    return globalThis.inkwasm.Load.UintPtr(go, ptr_data, 0)
+                case 23: // Slice
+                    let ptr_elem = globalThis.inkwasm.Load.UintPtr(go, ptr_rtype, 48)
+                    let ptr_elem_kind = globalThis.inkwasm.Load.Byte(go, ptr_elem, 8 + 8 + 4 + 1 + 1 + 1)
+
+                    let slice_fn = undefined;
+                    switch (ptr_elem_kind) {
+                        case 1: // Bool
+                            slice_fn = globalThis.inkwasm.Load.ArrayByte
+                            break;
+                        case 2: // Int
+                            slice_fn = globalThis.inkwasm.Load.ArrayInt64
+                            break;
+                        case 3: // Int8
+                            slice_fn = globalThis.inkwasm.Load.ArrayInt8
+                            break;
+                        case 4: // Int16
+                            slice_fn = globalThis.inkwasm.Load.ArrayInt16
+                            break;
+                        case 5: // Int32
+                            slice_fn = globalThis.inkwasm.Load.ArrayInt32
+                            break;
+                        case 6: // Int64
+                            slice_fn = globalThis.inkwasm.Load.ArrayInt64
+                            break;
+                        case 7: // Uint
+                            slice_fn = globalThis.inkwasm.Load.ArrayUint64
+                            break;
+                        case 8: // Uint8
+                            slice_fn = globalThis.inkwasm.Load.ArrayUint8
+                            break;
+                        case 9: // Uint16
+                            slice_fn = globalThis.inkwasm.Load.ArrayUint16
+                            break;
+                        case 10: // Uint32
+                            slice_fn = globalThis.inkwasm.Load.ArrayUint32
+                            break;
+                        case 11: // Uint64
+                            slice_fn = globalThis.inkwasm.Load.ArrayUint64
+                            break;
+                        case 12: // Uintptr
+                            slice_fn = globalThis.inkwasm.Load.ArrayUint64
+                            break;
+                        case 13: // Float32
+                            slice_fn = globalThis.inkwasm.Load.ArrayFloat32
+                            break;
+                        case 14: // Float64
+                            slice_fn = globalThis.inkwasm.Load.ArrayFloat64
+                            break;
+                    }
+
+                    if (slice_fn === undefined) {
+                        return undefined
+                    }
+
+                    return globalThis.inkwasm.Load.Slice(go, ptr_data, 0, slice_fn)
+                case 24: // String
+                    return globalThis.inkwasm.Load.String(go, ptr_data, 0)
+                case 25: // Struct
+                    const known_path_bytes = StringEncoder.encode("github.com/inkeliz/go_inkwasm/inkwasm")
+
+                    let ptr_pkgPath = globalThis.inkwasm.Load.UintPtr(go, ptr_rtype, 48)
+                    let pkgPath = globalThis.inkwasm.Load.ArrayByte(go, ptr_pkgPath, 2, known_path_bytes.length)
+
+                    if (known_path_bytes.length !== known_path_bytes.length) {
+                        return undefined
+                    }
+
+                    // Compare each element in the arrays
+                    for (let i = 0; i < pkgPath.length; i++) {
+                        if (pkgPath[i] !== known_path_bytes[i]) {
+                            return undefined;
+                        }
+                    }
+
+                    return globalThis.inkwasm.Load.InkwasmObject(go, ptr_data, 0)
+                case 26: // UnsafePointer
+                    return globalThis.inkwasm.Load.UnsafePointer(go, ptr_data, 0)
+            }
+        },
 
         Array: function (go, sp, offset, len, f) {
             return f(go, sp, offset, len).slice(0, len)

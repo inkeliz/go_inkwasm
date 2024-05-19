@@ -72,4 +72,11 @@
     globalThis.TestUint64_Add = function (e, e2) {
         return e + e2
     }
+    globalThis.TestSumFromArray = function (e) {
+        let sum = 0
+        for (let i = 0; i < e.length; i++) {
+            sum += e[i]
+        }
+        return sum
+    }
 })();
