@@ -6,25 +6,6 @@ import (
 	"runtime"
 )
 
-func _getBasicDecoder(s string) (_ Object) {
-	r0 := __getBasicDecoder(s)
-	runtime.KeepAlive(s)
-
-	return r0
-}
-
-//go:wasmimport gojs github.com/inkeliz/go_inkwasm/inkwasm.__getBasicDecoder
-func __getBasicDecoder(s string) (_ Object)
-
-func _getSliceDecoder(f Object) (_ Object) {
-	r0 := __getSliceDecoder(f)
-
-	return r0
-}
-
-//go:wasmimport gojs github.com/inkeliz/go_inkwasm/inkwasm.__getSliceDecoder
-func __getSliceDecoder(f Object) (_ Object)
-
 func _newObjectFromSyscall(i uint32) (_ Object) {
 	r0 := __newObjectFromSyscall(i)
 
@@ -79,7 +60,7 @@ func _free(ref int) {
 //go:wasmimport gojs github.com/inkeliz/go_inkwasm/inkwasm.__free
 func __free(ref int)
 
-func _call(o Object, k string, args []int32) (_ Object, _ bool) {
+func _call(o Object, k string, args []interface{}) (_ Object, _ bool) {
 	r0, r1 := __call(o, k, args)
 	runtime.KeepAlive(k)
 	runtime.KeepAlive(args)
@@ -88,9 +69,9 @@ func _call(o Object, k string, args []int32) (_ Object, _ bool) {
 }
 
 //go:wasmimport gojs github.com/inkeliz/go_inkwasm/inkwasm.__call
-func __call(o Object, k string, args []int32) (_ Object, _ bool)
+func __call(o Object, k string, args []interface{}) (_ Object, _ bool)
 
-func _callVoid(o Object, k string, args []int32) (_ bool, ok bool) {
+func _callVoid(o Object, k string, args []interface{}) (_ bool, ok bool) {
 	r0, r1 := __callVoid(o, k, args)
 	runtime.KeepAlive(k)
 	runtime.KeepAlive(args)
@@ -99,9 +80,9 @@ func _callVoid(o Object, k string, args []int32) (_ bool, ok bool) {
 }
 
 //go:wasmimport gojs github.com/inkeliz/go_inkwasm/inkwasm.__callVoid
-func __callVoid(o Object, k string, args []int32) (_ bool, ok bool)
+func __callVoid(o Object, k string, args []interface{}) (_ bool, ok bool)
 
-func _invoke(o Object, args []int32) (_ Object, _ bool) {
+func _invoke(o Object, args []interface{}) (_ Object, _ bool) {
 	r0, r1 := __invoke(o, args)
 	runtime.KeepAlive(args)
 
@@ -109,9 +90,9 @@ func _invoke(o Object, args []int32) (_ Object, _ bool) {
 }
 
 //go:wasmimport gojs github.com/inkeliz/go_inkwasm/inkwasm.__invoke
-func __invoke(o Object, args []int32) (_ Object, _ bool)
+func __invoke(o Object, args []interface{}) (_ Object, _ bool)
 
-func _invokeVoid(o Object, args []int32) (_ bool, ok bool) {
+func _invokeVoid(o Object, args []interface{}) (_ bool, ok bool) {
 	r0, r1 := __invokeVoid(o, args)
 	runtime.KeepAlive(args)
 
@@ -119,9 +100,9 @@ func _invokeVoid(o Object, args []int32) (_ bool, ok bool) {
 }
 
 //go:wasmimport gojs github.com/inkeliz/go_inkwasm/inkwasm.__invokeVoid
-func __invokeVoid(o Object, args []int32) (_ bool, ok bool)
+func __invokeVoid(o Object, args []interface{}) (_ bool, ok bool)
 
-func _newObj(o Object, args []int32) (_ Object, _ bool) {
+func _newObj(o Object, args []interface{}) (_ Object, _ bool) {
 	r0, r1 := __newObj(o, args)
 	runtime.KeepAlive(args)
 
@@ -129,7 +110,7 @@ func _newObj(o Object, args []int32) (_ Object, _ bool) {
 }
 
 //go:wasmimport gojs github.com/inkeliz/go_inkwasm/inkwasm.__newObj
-func __newObj(o Object, args []int32) (_ Object, _ bool)
+func __newObj(o Object, args []interface{}) (_ Object, _ bool)
 
 func _getIndex(o Object, i int) (_ Object) {
 	r0 := __getIndex(o, i)

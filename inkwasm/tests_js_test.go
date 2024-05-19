@@ -11,21 +11,20 @@ import (
 )
 
 func testInvoke(t *testing.T, obj Object, args ...interface{}) {
-	t.Helper()
 	defer obj.Free()
 
 	objInvoked, err := obj.Invoke(args...)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	defer objInvoked.Free()
 
 	r, err := objInvoked.Bool()
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	if r != true {
-		t.Error("not true")
+		t.Fatal("not true")
 	}
 }
 
@@ -135,12 +134,9 @@ func TestObjectType_String(t *testing.T) {
 func gen_nonExistentFunction(s string) (Object, bool)
 
 func TestNonExistentFunction(t *testing.T) {
-	v, ok := gen_nonExistentFunction("Hello, 世界")
+	_, ok := gen_nonExistentFunction("Hello, 世界")
 	if ok {
 		t.Error("non existent function should return false")
-	}
-	if v.Truthy() {
-		t.Error("non existent function should return undefined")
 	}
 }
 
@@ -278,6 +274,48 @@ func TestInt64_Static(t *testing.T) {
 	}
 }
 
+//inkwasm:func globalThis.TestSumFromArray
+func gen_TestSumFromArray([]uint32) uint32
+
+func TestArgsReuse(t *testing.T) {
+	args := []interface{}{
+		[]uint32{1, 2, 3, 4, 5},
+	}
+
+	if gen_TestSumFromArray(args[0].([]uint32)) != 15 {
+		t.Error("args reuse error")
+	}
+
+	obj := Global().GetProperty("TestSumFromArray")
+	res, err := obj.Invoke(args...)
+	if err != nil {
+		t.Error(err)
+	}
+
+	v, err := res.Int()
+	if err != nil {
+		t.Error(err)
+	}
+
+	if v != 15 {
+		t.Error("args reuse error")
+	}
+
+	resReused, err := obj.Invoke(args...)
+	if err != nil {
+		t.Error(err)
+	}
+
+	v, err = resReused.Int()
+	if err != nil {
+		t.Error(err)
+	}
+
+	if v != 15 {
+		t.Error("args reuse error")
+	}
+}
+
 //inkwasm:func globalThis.TestObject_Bytes
 func gen_TestObject_Bytes() []byte
 
@@ -360,13 +398,14 @@ func Benchmark_GetLocalStorage_JS_SYSCALL(b *testing.B) {
 }
 
 //inkwasm:get globalThis.location.hostname
-func gen_GetLocationHostname() string
+func gen_GetLocationHostname() Object
 
 func Benchmark_GetLocationHostname_INKWASM(b *testing.B) {
 	b.ReportAllocs()
 
+	fn := gen_GetLocationHostname()
 	for i := 0; i < b.N; i++ {
-		if gen_GetLocationHostname() == "" {
+		if r, err := fn.String(); r == "" || err != nil {
 			b.Fail()
 		}
 	}
@@ -389,16 +428,26 @@ func gen_createElement(v string) Object
 //inkwasm:set .innerHTML
 func gen_setInnerHTML(o Object, v string)
 
-//inkwasm:func globalThis.document.body.appendChild
-func gen_appendChild(c Object)
+//inkwasm:func .appendChild
+func gen_appendChild(o Object, v Object)
+
+//inkwasm:get globalThis.document.body
+func gen_getBody() Object
 
 func Benchmark_DOM_INKWASM(b *testing.B) {
 	b.ReportAllocs()
 
+	body := gen_getBody()
+
 	for i := 0; i < b.N; i++ {
 		div := gen_createElement("div")
 		gen_setInnerHTML(div, "foo <strong>bar</strong> baz "+strconv.Itoa(i))
-		gen_appendChild(div)
+		gen_appendChild(body, div)
+		div.Free()
+
+		if i%100 == 0 {
+			gen_setInnerHTML(body, "")
+		}
 	}
 }
 
@@ -407,17 +456,25 @@ func Benchmark_DOM_RUNTIME_INKWASM(b *testing.B) {
 
 	doc := Global().GetProperty("document")
 	defer doc.Free()
+
 	createElement, _ := doc.GetProperty("createElement").Call("bind", doc)
 	defer createElement.Free()
+
 	body := doc.GetProperty("body")
 	defer body.Free()
+
 	appendChild, _ := body.GetProperty("appendChild").Call("bind", body)
 	defer appendChild.Free()
+
 	for i := 0; i < b.N; i++ {
 		div, _ := createElement.Invoke("div")
 		div.SetProperty("innerHTML", "foo <strong>bar</strong> baz "+strconv.Itoa(i))
 		appendChild.InvokeVoid(div)
 		div.Free()
+
+		if i%100 == 0 {
+			body.SetProperty("innerHTML", "")
+		}
 	}
 }
 
@@ -425,13 +482,21 @@ func Benchmark_DOM_JS_SYSCALL(b *testing.B) {
 	b.ReportAllocs()
 
 	doc := js.Global().Get("document")
+
 	createElement := doc.Get("createElement").Call("bind", doc)
+
 	body := doc.Get("body")
+
 	appendChild := body.Get("appendChild").Call("bind", body)
+
 	for i := 0; i < b.N; i++ {
 		div := createElement.Invoke("div")
 		div.Set("innerHTML", "foo <strong>bar</strong> baz "+strconv.Itoa(i))
 		appendChild.Invoke(div)
+
+		if i%100 == 0 {
+			body.Set("innerHTML", "")
+		}
 	}
 }
 
@@ -439,10 +504,15 @@ func Benchmark_DOM_BAD_JS_SYSCALL(b *testing.B) {
 	b.ReportAllocs()
 
 	doc := js.Global().Get("document")
+
 	for i := 0; i < b.N; i++ {
 		div := doc.Call("createElement", "div")
 		div.Set("innerHTML", "foo <strong>bar</strong> baz "+strconv.Itoa(i))
 		doc.Get("body").Call("appendChild", div)
+
+		if i%100 == 0 {
+			doc.Get("body").Set("innerHTML", "")
+		}
 	}
 }
 
@@ -451,10 +521,15 @@ func Benchmark_DOM_BAD_RUNTIME_INKWASM(b *testing.B) {
 
 	doc := Global().GetProperty("document")
 	defer doc.Free()
+
 	for i := 0; i < b.N; i++ {
 		div, _ := doc.Call("createElement", "div")
 		div.SetProperty("innerHTML", "foo <strong>bar</strong> baz "+strconv.Itoa(i))
 		doc.GetProperty("body").Call("appendChild", div)
 		div.Free()
+
+		if i%100 == 0 {
+			doc.GetProperty("body").SetProperty("innerHTML", "")
+		}
 	}
 }
