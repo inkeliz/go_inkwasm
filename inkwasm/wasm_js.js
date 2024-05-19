@@ -421,21 +421,6 @@
                 case "undefined":
                     globalThis.inkwasm.Set.Uint8(go, sp, offset + 8, ObjectTypes.TypeUndefined)
                     break;
-                case "object":
-                    if (v === null) {
-                        globalThis.inkwasm.Set.Uint8(go, sp, offset + 8, ObjectTypes.TypeNull);
-                    } else {
-                        globalThis.inkwasm.Set.Object(go, sp, offset, v);
-                        globalThis.inkwasm.Set.Uint8(go, sp, offset + 8, ObjectTypes.TypeObject);
-                        if (Array.isArray(v) || v.length !== undefined || v.byteLength !== undefined) {
-                            let len = v.length
-                            if (v.byteLength !== undefined) {
-                                len = v.byteLength
-                            }
-                            globalThis.inkwasm.Set.Uint32(go, sp, offset + 12, len);
-                        }
-                    }
-                    break;
                 case "boolean":
                     globalThis.inkwasm.Set.Bool(go, sp, offset, v);
                     globalThis.inkwasm.Set.Uint8(go, sp, offset + 8, ObjectTypes.TypeBoolean);
@@ -460,6 +445,21 @@
                 case "function":
                     globalThis.inkwasm.Set.Object(go, sp, offset, v);
                     globalThis.inkwasm.Set.Uint8(go, sp, offset + 8, ObjectTypes.TypeFunction);
+                    break;
+                case "object":
+                    if (v === null) {
+                        globalThis.inkwasm.Set.Uint8(go, sp, offset + 8, ObjectTypes.TypeNull);
+                    } else {
+                        globalThis.inkwasm.Set.Object(go, sp, offset, v);
+                        globalThis.inkwasm.Set.Uint8(go, sp, offset + 8, ObjectTypes.TypeObject);
+                        if (Array.isArray(v) || v.length !== undefined || v.byteLength !== undefined) {
+                            let len = v.length
+                            if (v.byteLength !== undefined) {
+                                len = v.byteLength
+                            }
+                            globalThis.inkwasm.Set.Uint32(go, sp, offset + 12, len);
+                        }
+                    }
                     break;
             }
         }

@@ -194,7 +194,7 @@ globalThis._exit_code = null;
 let go = undefined;
 
 (() => {
-    go = {argv: [], env: {}, importObject: {go: {}}};
+    go = {argv: [], env: {}, importObject: {gojs: {}}};
 	const argv = new URLSearchParams(location.search).get("argv");
 	if (argv) {
 		go["argv"] = argv.split(" ");

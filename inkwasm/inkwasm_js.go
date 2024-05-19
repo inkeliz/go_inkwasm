@@ -12,6 +12,8 @@ func _getBasicDecoder(s string) (_ Object) {
 
 	return r0
 }
+
+//go:wasmimport gojs github.com/inkeliz/go_inkwasm/inkwasm.__getBasicDecoder
 func __getBasicDecoder(s string) (_ Object)
 
 func _getSliceDecoder(f Object) (_ Object) {
@@ -19,6 +21,8 @@ func _getSliceDecoder(f Object) (_ Object) {
 
 	return r0
 }
+
+//go:wasmimport gojs github.com/inkeliz/go_inkwasm/inkwasm.__getSliceDecoder
 func __getSliceDecoder(f Object) (_ Object)
 
 func _newObjectFromSyscall(i uint32) (_ Object) {
@@ -26,6 +30,8 @@ func _newObjectFromSyscall(i uint32) (_ Object) {
 
 	return r0
 }
+
+//go:wasmimport gojs github.com/inkeliz/go_inkwasm/inkwasm.__newObjectFromSyscall
 func __newObjectFromSyscall(i uint32) (_ Object)
 
 func _getNull() (_ Object) {
@@ -33,6 +39,8 @@ func _getNull() (_ Object) {
 
 	return r0
 }
+
+//go:wasmimport gojs github.com/inkeliz/go_inkwasm/inkwasm.__getNull
 func __getNull() (_ Object)
 
 func _getUndefined() (_ Object) {
@@ -40,6 +48,8 @@ func _getUndefined() (_ Object) {
 
 	return r0
 }
+
+//go:wasmimport gojs github.com/inkeliz/go_inkwasm/inkwasm.__getUndefined
 func __getUndefined() (_ Object)
 
 func _getGlobal() (_ Object) {
@@ -47,6 +57,8 @@ func _getGlobal() (_ Object) {
 
 	return r0
 }
+
+//go:wasmimport gojs github.com/inkeliz/go_inkwasm/inkwasm.__getGlobal
 func __getGlobal() (_ Object)
 
 func _makeObj(p0 []int32) (_ Object) {
@@ -55,12 +67,16 @@ func _makeObj(p0 []int32) (_ Object) {
 
 	return r0
 }
+
+//go:wasmimport gojs github.com/inkeliz/go_inkwasm/inkwasm.__makeObj
 func __makeObj(p0 []int32) (_ Object)
 
 func _free(ref int) {
 	__free(ref)
 
 }
+
+//go:wasmimport gojs github.com/inkeliz/go_inkwasm/inkwasm.__free
 func __free(ref int)
 
 func _call(o Object, k string, args []int32) (_ Object, _ bool) {
@@ -70,6 +86,8 @@ func _call(o Object, k string, args []int32) (_ Object, _ bool) {
 
 	return r0, r1
 }
+
+//go:wasmimport gojs github.com/inkeliz/go_inkwasm/inkwasm.__call
 func __call(o Object, k string, args []int32) (_ Object, _ bool)
 
 func _callVoid(o Object, k string, args []int32) (_ bool, ok bool) {
@@ -79,6 +97,8 @@ func _callVoid(o Object, k string, args []int32) (_ bool, ok bool) {
 
 	return r0, r1
 }
+
+//go:wasmimport gojs github.com/inkeliz/go_inkwasm/inkwasm.__callVoid
 func __callVoid(o Object, k string, args []int32) (_ bool, ok bool)
 
 func _invoke(o Object, args []int32) (_ Object, _ bool) {
@@ -87,6 +107,8 @@ func _invoke(o Object, args []int32) (_ Object, _ bool) {
 
 	return r0, r1
 }
+
+//go:wasmimport gojs github.com/inkeliz/go_inkwasm/inkwasm.__invoke
 func __invoke(o Object, args []int32) (_ Object, _ bool)
 
 func _invokeVoid(o Object, args []int32) (_ bool, ok bool) {
@@ -95,6 +117,8 @@ func _invokeVoid(o Object, args []int32) (_ bool, ok bool) {
 
 	return r0, r1
 }
+
+//go:wasmimport gojs github.com/inkeliz/go_inkwasm/inkwasm.__invokeVoid
 func __invokeVoid(o Object, args []int32) (_ bool, ok bool)
 
 func _newObj(o Object, args []int32) (_ Object, _ bool) {
@@ -103,6 +127,8 @@ func _newObj(o Object, args []int32) (_ Object, _ bool) {
 
 	return r0, r1
 }
+
+//go:wasmimport gojs github.com/inkeliz/go_inkwasm/inkwasm.__newObj
 func __newObj(o Object, args []int32) (_ Object, _ bool)
 
 func _getIndex(o Object, i int) (_ Object) {
@@ -110,6 +136,8 @@ func _getIndex(o Object, i int) (_ Object) {
 
 	return r0
 }
+
+//go:wasmimport gojs github.com/inkeliz/go_inkwasm/inkwasm.__getIndex
 func __getIndex(o Object, i int) (_ Object)
 
 func _getProp(o Object, k string) (_ Object) {
@@ -118,6 +146,8 @@ func _getProp(o Object, k string) (_ Object) {
 
 	return r0
 }
+
+//go:wasmimport gojs github.com/inkeliz/go_inkwasm/inkwasm.__getProp
 func __getProp(o Object, k string) (_ Object)
 
 func _setProp(o Object, k string, v string) {
@@ -126,13 +156,26 @@ func _setProp(o Object, k string, v string) {
 	runtime.KeepAlive(v)
 
 }
+
+//go:wasmimport gojs github.com/inkeliz/go_inkwasm/inkwasm.__setProp
 func __setProp(o Object, k string, v string)
+
+func _setPropObj(o Object, k string, v Object) {
+	__setPropObj(o, k, v)
+	runtime.KeepAlive(k)
+
+}
+
+//go:wasmimport gojs github.com/inkeliz/go_inkwasm/inkwasm.__setPropObj
+func __setPropObj(o Object, k string, v Object)
 
 func _encodeString(o Object) (_ Object) {
 	r0 := __encodeString(o)
 
 	return r0
 }
+
+//go:wasmimport gojs github.com/inkeliz/go_inkwasm/inkwasm.__encodeString
 func __encodeString(o Object) (_ Object)
 
 func _copyBytes(o Object, buf []byte) {
@@ -140,6 +183,8 @@ func _copyBytes(o Object, buf []byte) {
 	runtime.KeepAlive(buf)
 
 }
+
+//go:wasmimport gojs github.com/inkeliz/go_inkwasm/inkwasm.__copyBytes
 func __copyBytes(o Object, buf []byte)
 
 func _instanceOf(o Object, v Object) (_ bool) {
@@ -147,6 +192,8 @@ func _instanceOf(o Object, v Object) (_ bool) {
 
 	return r0
 }
+
+//go:wasmimport gojs github.com/inkeliz/go_inkwasm/inkwasm.__instanceOf
 func __instanceOf(o Object, v Object) (_ bool)
 
 func _equal(o Object, v Object) (_ bool) {
@@ -154,6 +201,8 @@ func _equal(o Object, v Object) (_ bool) {
 
 	return r0
 }
+
+//go:wasmimport gojs github.com/inkeliz/go_inkwasm/inkwasm.__equal
 func __equal(o Object, v Object) (_ bool)
 
 func _strictEqual(o Object, v Object) (_ bool) {
@@ -161,4 +210,6 @@ func _strictEqual(o Object, v Object) (_ bool) {
 
 	return r0
 }
+
+//go:wasmimport gojs github.com/inkeliz/go_inkwasm/inkwasm.__strictEqual
 func __strictEqual(o Object, v Object) (_ bool)

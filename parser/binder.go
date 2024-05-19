@@ -117,14 +117,6 @@ func (b *Binder) createAssembly(_ bind.Package, info []*bind.Function) error {
 
 	for _, info := range info {
 		b.asm.Line()
-		b.asm.WriteOpen(`TEXT ·__%s(SB), NOSPLIT, $0`, info.FunctionGolang.Name)
-		b.asm.Line()
-		b.asm.Write(`CallImport`)
-		b.asm.Line()
-		b.asm.Write(`RET`)
-		b.asm.WriteClose("")
-		b.asm.Line()
-		b.asm.Line()
 		b.asm.WriteOpen(`TEXT ·%s(SB), NOSPLIT, $0`, info.FunctionGolang.Name)
 		b.asm.Line()
 		b.asm.Write(`JMP ·_%s(SB)`, info.FunctionGolang.Name)
@@ -294,7 +286,16 @@ func (b *Binder) createGolang(pkg bind.Package, info []*bind.Function) error {
 		b.golang.Line()
 		b.golang.WriteClose("}")
 		b.golang.Line()
+
+		path := pkg.Path
+		if pkg.Name == "main" {
+			path = "main"
+		}
+
+		b.golang.Write("//go:wasmimport gojs %s.__%s", path, info.FunctionGolang.Name)
+		b.golang.Line()
 		b.golang.Write("func __%s(%s) (%s)", info.FunctionGolang.Name, params[0].ArgsString.String(), params[1].StubArgsString.String())
+		b.golang.Line()
 		b.golang.Line()
 	}
 
@@ -368,7 +369,7 @@ func (b *Binder) createJavascript(pkg bind.Package, info []*bind.Function) error
 	b.js.Line()
 	b.js.WriteOpen(`(() => {`)
 	b.js.Line()
-	b.js.WriteOpen(`Object.assign(go.importObject.go, {`)
+	b.js.WriteOpen(`Object.assign(go.importObject.gojs, {`)
 	b.js.Line()
 
 	path := pkg.Path
@@ -573,11 +574,11 @@ func writeJSToGo(w *writer, r bind.Argument, sp *int, v string) error {
 		*sp += int(r.Len) * f.Size
 	case bind.ModeSlice:
 		slice, _ := bind.ResultFunc[r.ArgType]["default"]
-		padding(sp, slice.Size)
 		f, ok := bind.BridgeFunc[bind.ModeArray][strings.ToLower(r.SubType.Type)]
 		if !ok {
 			return fmt.Errorf("invalid type of slice %s", r.Type)
 		}
+		padding(sp, slice.Size)
 		w.Write(`%s(go, sp, %d, %s, %d)`, slice.JS, *sp, v, f.Size)
 		*sp += slice.Size
 	default:

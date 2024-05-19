@@ -1,9 +1,15 @@
 # Golang InkWasm
 
+
 **InkWasm** is faster `syscall/js` replacement, it's a package and a generator. Our goal is to be as faster and avoid unnecessary allocations. **InkWasm** initially created for [Gio](https://gioui.org/), improving the performance for [WebGL API](https://developer.mozilla.org/pt-BR/docs/Web/API/WebGL_API), in some devices and tests **InkWasm** is 2x faster than `syscall/js`, in real application it's 1.6x faster.
 
 > ⚠️ The generator changes the file of the current packages and imported packages. It is still experimental, keep a backup file and use some versioning tool (like Git). 
 
+## Golang Version
+
+> Go 1.20+: Current main branch
+> 
+> Go 1.18~Go1.20: https://github.com/inkeliz/go_inkwasm/releases/tag/v0.1.20
 
 ## Benchmark
 
@@ -89,16 +95,16 @@ You can also call functions that belongs to a specific Object, the name must sta
 
 ```
 //inkwasm:func .bufferData
-func glBufferData(o inkwasm.Object, target uint, data []byte, usage uint)
+func glBufferData(o inkwasm.Object, data []byte, usage uint)
 ```
 ```
 func main() {
     ///... 
-    glBufferData(gl, len(data), STATIC_DRAW, data)
+    glBufferData(gl, data, STATIC_DRAW)
 }
 ```
 
-It will call `o.bufferData` (is expected that the given `o` (`inkwasm.Object`) is a WebGL Context).
+It will call `o.bufferData` (is expected that the given `o`, `inkwasm.Object`, is a WebGL Context).
 
 ### Get attribute:
 
@@ -154,9 +160,9 @@ Currently, **InkWasm** is very experimental and WebAssembly, in general, is also
 
 ## Blockers
 
-- `CallImport` will be removed:
+- ~~`CallImport` will be removed:~~
 
-  Currently, **InkWasm** heavily rely on `CallImport`, it will be removed in the future and will be exclusive to `syscall/js` and `runtime` [golang#38248](https://github.com/golang/go/issues/38248). If that happens, the only solution is to replace `syscall/js`, maybe using `-overlay` on `cmd/go`.
+  ~~Currently, **InkWasm** heavily rely on `CallImport`, it will be removed in the future and will be exclusive to `syscall/js` and `runtime` [golang#38248](https://github.com/golang/go/issues/38248). If that happens, the only solution is to replace `syscall/js`, maybe using `-overlay` on `cmd/go`.~~
 
 - `go:wasmexport` isn't (yet) supported:
 

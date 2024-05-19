@@ -162,7 +162,7 @@ type filter func(b byte) (filter, error)
 func (p *Parser) parseComment(s string) (b *bind.Function, err error) {
 	const prefixLen = len("//inkwasm:")
 
-	if !strings.HasPrefix(s, "//inkwasm:") || len(s) <= prefixLen {
+	if len(s) <= prefixLen || !strings.HasPrefix(s, "//inkwasm:") {
 		return b, nil
 	}
 
