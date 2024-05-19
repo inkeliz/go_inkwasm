@@ -9,18 +9,6 @@
 (() => {
 	Object.assign(go.importObject.gojs, {
 
-		"github.com/inkeliz/go_inkwasm/inkwasm.__getBasicDecoder": (sp) => {
-			let r = globalThis.inkwasm.Load[globalThis.inkwasm.Load.String(go, sp, 8)]
-			sp = go._inst.exports.getsp() >>> 0
-			globalThis.inkwasm.Set.InkwasmObject(go, sp, 24, r)
-		},
-
-		"github.com/inkeliz/go_inkwasm/inkwasm.__getSliceDecoder": (sp) => {
-			let r = globalThis.inkwasm.Load.SliceOf(globalThis.inkwasm.Load.InkwasmObject(go, sp, 8))
-			sp = go._inst.exports.getsp() >>> 0
-			globalThis.inkwasm.Set.InkwasmObject(go, sp, 24, r)
-		},
-
 		"github.com/inkeliz/go_inkwasm/inkwasm.__newObjectFromSyscall": (sp) => {
 			let r = go._values[globalThis.inkwasm.Load.Uint32(go, sp, 8)]
 			sp = go._inst.exports.getsp() >>> 0
@@ -58,7 +46,7 @@
 
 		"github.com/inkeliz/go_inkwasm/inkwasm.__call": (sp) => {
 			try {
-				let r = globalThis.inkwasm.Internal.Call(globalThis.inkwasm.Load.InkwasmObject(go, sp, 8),globalThis.inkwasm.Load.String(go, sp, 24),globalThis.inkwasm.Load.Slice(go, sp, 40, globalThis.inkwasm.Load.ArrayInt32))
+				let r = globalThis.inkwasm.Internal.Call(globalThis.inkwasm.Load.InkwasmObject(go, sp, 8),globalThis.inkwasm.Load.String(go, sp, 24),globalThis.inkwasm.Load.Slice(go, sp, 40, globalThis.inkwasm.Load.ArrayInterface))
 				sp = go._inst.exports.getsp() >>> 0
 				globalThis.inkwasm.Set.InkwasmObject(go, sp, 64, r)
 				globalThis.inkwasm.Set.Bool(go, sp, 80, true)
@@ -70,7 +58,7 @@
 
 		"github.com/inkeliz/go_inkwasm/inkwasm.__callVoid": (sp) => {
 			try {
-				let r = globalThis.inkwasm.Internal.Call(globalThis.inkwasm.Load.InkwasmObject(go, sp, 8),globalThis.inkwasm.Load.String(go, sp, 24),globalThis.inkwasm.Load.Slice(go, sp, 40, globalThis.inkwasm.Load.ArrayInt32))
+				let r = globalThis.inkwasm.Internal.Call(globalThis.inkwasm.Load.InkwasmObject(go, sp, 8),globalThis.inkwasm.Load.String(go, sp, 24),globalThis.inkwasm.Load.Slice(go, sp, 40, globalThis.inkwasm.Load.ArrayInterface))
 				sp = go._inst.exports.getsp() >>> 0
 				globalThis.inkwasm.Set.Bool(go, sp, 64, r)
 				globalThis.inkwasm.Set.Bool(go, sp, 65, true)
@@ -82,7 +70,7 @@
 
 		"github.com/inkeliz/go_inkwasm/inkwasm.__invoke": (sp) => {
 			try {
-				let r = globalThis.inkwasm.Internal.Invoke(globalThis.inkwasm.Load.InkwasmObject(go, sp, 8),globalThis.inkwasm.Load.Slice(go, sp, 24, globalThis.inkwasm.Load.ArrayInt32))
+				let r = globalThis.inkwasm.Internal.Invoke(globalThis.inkwasm.Load.InkwasmObject(go, sp, 8),globalThis.inkwasm.Load.Slice(go, sp, 24, globalThis.inkwasm.Load.ArrayInterface))
 				sp = go._inst.exports.getsp() >>> 0
 				globalThis.inkwasm.Set.InkwasmObject(go, sp, 48, r)
 				globalThis.inkwasm.Set.Bool(go, sp, 64, true)
@@ -94,7 +82,7 @@
 
 		"github.com/inkeliz/go_inkwasm/inkwasm.__invokeVoid": (sp) => {
 			try {
-				let r = globalThis.inkwasm.Internal.Invoke(globalThis.inkwasm.Load.InkwasmObject(go, sp, 8),globalThis.inkwasm.Load.Slice(go, sp, 24, globalThis.inkwasm.Load.ArrayInt32))
+				let r = globalThis.inkwasm.Internal.Invoke(globalThis.inkwasm.Load.InkwasmObject(go, sp, 8),globalThis.inkwasm.Load.Slice(go, sp, 24, globalThis.inkwasm.Load.ArrayInterface))
 				sp = go._inst.exports.getsp() >>> 0
 				globalThis.inkwasm.Set.Bool(go, sp, 48, r)
 				globalThis.inkwasm.Set.Bool(go, sp, 49, true)
@@ -106,7 +94,7 @@
 
 		"github.com/inkeliz/go_inkwasm/inkwasm.__newObj": (sp) => {
 			try {
-				let r = new globalThis.inkwasm.Load.InkwasmObject(go, sp, 8)(globalThis.inkwasm.Load.Slice(go, sp, 24, globalThis.inkwasm.Load.ArrayInt32))
+				let r = new globalThis.inkwasm.Load.InkwasmObject(go, sp, 8)(globalThis.inkwasm.Load.Slice(go, sp, 24, globalThis.inkwasm.Load.ArrayInterface))
 				sp = go._inst.exports.getsp() >>> 0
 				globalThis.inkwasm.Set.InkwasmObject(go, sp, 48, r)
 				globalThis.inkwasm.Set.Bool(go, sp, 64, true)

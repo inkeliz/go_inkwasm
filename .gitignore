@@ -1,0 +1,6 @@
+.DS_Store
+.idea
+inkwasm/.DS_Store
+inkwasm/inkwasm_js_test.go
+inkwasm/inkwasm_js_test.js
+inkwasm/inkwasm_js_test.s
