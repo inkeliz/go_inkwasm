@@ -2,6 +2,13 @@
     let StringEncoder = new TextEncoder();
     let StringDecoder = new TextDecoder();
 
+    let packagePathHex = "00256769746875622E636F6D2F696E6B656C697A2F676F5F696E6B7761736D2F"
+    let packagePathHexUint8Array = new Uint8Array(packagePathHex.length / 2);
+    for (let i = 0; i < packagePathHexUint8Array.length; i++) {
+        packagePathHexUint8Array[i] = parseInt(packagePathHex.slice(i * 2, (i + 1) * 2), 16)
+    }
+    const PackagePath = new BigInt64Array(packagePathHexUint8Array.buffer);
+
     let Objects = [];
     let ObjectsUnused = [];
 
@@ -220,9 +227,9 @@
         },
 
         ArrayInterface: function (go, sp, offset, len) {
-            let result = []
+            let result = new Array(len)
             for (let i = 0; i < len; i++) {
-                result.push(globalThis.inkwasm.Load.Interface(go, sp, offset + (i * 16)))
+                result[i] = globalThis.inkwasm.Load.Interface(go, sp, offset + (i * 16))
             }
             return result
         },
@@ -232,8 +239,6 @@
 
             let kind = globalThis.inkwasm.Load.Byte(go, ptr_rtype, 8 + 8 + 4 + 1 + 1 + 1)
             switch (kind) {
-                case 0: // Invalid
-                    return undefined
                 case 1: // Bool
                     return globalThis.inkwasm.Load.Bool(go, ptr_data, 0)
                 case 2: // Int
@@ -262,20 +267,6 @@
                     return globalThis.inkwasm.Load.Float32(go, ptr_data, 0)
                 case 14: // Float64
                     return globalThis.inkwasm.Load.Float64(go, ptr_data, 0)
-                case 15: // Complex64
-                    return undefined
-                case 16: // Complex128
-                    return undefined
-                case 17: // Array
-                    return undefined
-                case 18: // Chan
-                    return undefined
-                case 19: // Func
-                    return undefined
-                case 20: // Interface
-                    return undefined
-                case 21: // Map
-                    return undefined
                 case 22: // Pointer
                     return globalThis.inkwasm.Load.UintPtr(go, ptr_data, 0)
                 case 23: // Slice
@@ -336,25 +327,27 @@
                 case 24: // String
                     return globalThis.inkwasm.Load.String(go, ptr_data, 0)
                 case 25: // Struct
-                    const known_path_bytes = StringEncoder.encode("github.com/inkeliz/go_inkwasm/inkwasm")
-
+                    /*
                     let ptr_pkgPath = globalThis.inkwasm.Load.UintPtr(go, ptr_rtype, 48)
-                    let pkgPath = globalThis.inkwasm.Load.ArrayByte(go, ptr_pkgPath, 2, known_path_bytes.length)
+                    let pkgPath = globalThis.inkwasm.Load.ArrayUint64(go, ptr_pkgPath, 2, PackagePath.length)
 
-                    if (known_path_bytes.length !== known_path_bytes.length) {
+                    if (pkgPath.length !== PackagePath.length) {
                         return undefined
                     }
 
                     // Compare each element in the arrays
                     for (let i = 0; i < pkgPath.length; i++) {
-                        if (pkgPath[i] !== known_path_bytes[i]) {
+                        if (pkgPath[i] !== PackagePath[i]) {
                             return undefined;
                         }
                     }
+                    */
 
                     return globalThis.inkwasm.Load.InkwasmObject(go, ptr_data, 0)
                 case 26: // UnsafePointer
                     return globalThis.inkwasm.Load.UnsafePointer(go, ptr_data, 0)
+                default:
+                    return undefined
             }
         },
 
